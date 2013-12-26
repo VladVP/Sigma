@@ -13,12 +13,29 @@
 #include "OS.h"
 #include "components/SpotLight.h"
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 int main(int argCount, char **argValues) {
+	Sigma::WebGUISystem webguisys;
+
+#ifdef _WIN32
+	CefMainArgs mainArgs(GetModuleHandle(NULL));
+#else
+	CefMainArgs mainArgs(argCount, argValues);
+#endif
+	CefRefPtr<Sigma::WebGUISystem> app(&webguisys);
+
+	int exitCode = CefExecuteProcess(mainArgs, app.get());
+	if (exitCode >= 0) {
+		return exitCode;
+	}
+
 	Sigma::OS glfwos;
 	Sigma::OpenGLSystem glsys;
 	Sigma::OpenALSystem alsys;
 	Sigma::BulletPhysics bphys;
-	Sigma::WebGUISystem webguisys;
 
 	Sigma::FactorySystem& factory = Sigma::FactorySystem::getInstance();
 	factory.register_Factory(glsys);
@@ -65,11 +82,15 @@ int main(int argCount, char **argValues) {
 
 	bphys.Start();
 
+<<<<<<< HEAD
 	///////////////
 	// Setup GUI //
 	///////////////
 
 	webguisys.Start();
+=======
+	webguisys.Start(mainArgs);
+>>>>>>> Web GUI now uses Chromium Embedded Framework.
 	webguisys.SetWindowSize(glfwos.GetWindowWidth(), glfwos.GetWindowHeight());
 
 	/////////////////
@@ -229,5 +250,6 @@ int main(int argCount, char **argValues) {
 		glfwos.OSMessageLoop();
 	}
 
+	CefShutdown();
 	return 0;
 }

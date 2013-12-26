@@ -18,11 +18,16 @@ Coding standards and practices can be found [here](https://github.com/adam4813/S
 Installing
 ===
 Sigma requires the following dependencies:
+<<<<<<< HEAD
 * [GLEW](http://glew.sourceforge.net) 1.5.2 or newer, not required on OS X;
+=======
+* [GLEW](http://glew.sourceforge.net) 1.5.2 or newer;
+>>>>>>> Web GUI now uses Chromium Embedded Framework.
 * [GLFW](http://www.glfw.org) 3.0.0 or newer;
 * [GLM](http://glm.g-truc.net);
 * [SOIL](http://www.lonesock.net/soil.html);
 * [Bullet](http://www.bulletphysics.org);
+<<<<<<< HEAD
 * [Awesomium](http://www.awesomium.com);
 * An OpenAL API implementation;
 * [libogg](https://www.xiph.org/ogg/);
@@ -32,13 +37,37 @@ You'll also need a [package of assets](http://wiki.trillek.org/wiki/Assets).  Un
 
 ## Building ##
 
+=======
+* [Chromium Embedded Framework](http://code.google.com/p/chromiumembedded) 3;
+
+Sigma on Linux also requires [GTK+ 2](http://www.gtk.org), due to usage of Chromium Embedded Framework.
+
+You'll also need a [package of assets](https://www.dropbox.com/s/7y8rzmi4i6ie0kn/assets12-13.zip). Unpack it in the build/bin/ directory.
+
+## Setting up Chromium Embedded Framework ###
+Chromium Embedded Framework is not a standard library that is thrown into compiler's directories.
+
+Make sure you use a binary release from [Adobe](http://www.cefbuilds.com). Sigma is developed using the latest stable version.
+
+1. Unzip the downloaded tarball.
+2. This step depends on your platform. On Windows, build the included `libcef_dll_wrapper.vcxproj` project. On Linux, run `make libcef_dll_wrapper`. On OS X, use the `cefclient.xcodeproj` Xcode project.
+3. Copy the `libcef_dll_wrapper` library and directory of the same name, if any, and the contents of Debug/ and Resources/ directories into Sigma's build/bin/.
+4. Copy the contents of include/ directory into Sigma's include/.
+
+## Buildling ##
+
+>>>>>>> Web GUI now uses Chromium Embedded Framework.
 Use CMake to create makefiles or projects. The resulting executable will be saved in build/bin/.
 
 ## OS X ##
 
 If you want to compile Sigma on OS X, your system must be running OS X 10.7 or later.  You will need to have installed Xcode and, unless your system is running 10.9, the Command Line Tools.  Both can be downloaded from the [Apple Developer Website](https://developer.apple.com/downloads).  
 
+<<<<<<< HEAD
 Before you can build Sigma, you'll first need to install the dependencies separately.  Using a package manager, such as [MacPorts](http://macports.org), is recommended.  Sigma can only be built as a 32-bit executable under OS X.  All dependencies, except cmake, that you install must include a 32-bit slice.
+=======
+Before you can build Sigma, you'll first need to install the dependencies separately.  Using a package manager, such as [MacPorts](http://macports.org), is recommended.
+>>>>>>> Web GUI now uses Chromium Embedded Framework.
 
 If MacPorts is present, you can use the following commands to install CMake, GLM, GLFW, libogg and libvorbis:
 
@@ -61,8 +90,6 @@ Sigma on OS X requires a [patched version](https://github.com/DeVaukz/SOIL) of S
 	cd SOIL
 	cmake . -G "Unix Makefiles"
 	make -j10 && sudo make install 
-
-Awesomium is only distributed in binary form.  Download and run the installer from the [Awesomium website](http://www.awesomium.com/). 
 
 Once all the dependencies are installed, you can build Sigma.
 

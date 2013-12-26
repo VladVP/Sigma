@@ -8,26 +8,31 @@
 #include <vector>
 #include <map>
 
+<<<<<<< HEAD
 #include <Awesomium/WebCore.h>
 #include <Awesomium/BitmapSurface.h>
 #include <Awesomium/STLHelpers.h>
 #include "Sigma.h"
+=======
+#include "cef_app.h"
+#include "cef_client.h"
+#include "cef_render_process_handler.h"
+>>>>>>> Web GUI now uses Chromium Embedded Framework.
 
 class Property;
 
-using namespace Awesomium;
-
 namespace Sigma {
-	class WebGUISystem : public IFactory, public ISystem<WebGUIView> {
+	class WebGUISystem : public IFactory, public ISystem<WebGUIView>, public CefApp, public CefBrowserProcessHandler, public CefRenderProcessHandler {
 	public:
-		WebGUISystem() : web_core(nullptr) { }
+		WebGUISystem() { }
 		~WebGUISystem() { };
 		/**
-		 * \brief Starts the Awesomium WebGUI system.
+		 * \brief Initializes the Chromium Embedded Framework.
 		 *
+		 * \param[in] CefMainArgs mainArgs Command line arguments, passed from main()
 		 * \return bool Returns false on startup failure.
 		 */
-		bool Start();
+		bool Start(CefMainArgs& mainArgs);
 
 		void SetWindowSize(unsigned int width, unsigned int height) {
 			this->windowWidth = width;
@@ -45,9 +50,23 @@ namespace Sigma {
 
 		std::map<std::string,FactoryFunction> getFactoryFunctions();
 
+<<<<<<< HEAD
 		IComponent* createWebGUIView(const id_t entityID, const std::vector<Property> &properties);
+=======
+		IComponent* createWebGUIView(const unsigned int entityID, const std::vector<Property> &properties);
+
+		// CefApp
+		virtual CefRefPtr<CefBrowserProcessHandler> GetBrowserProcessHandler() OVERRIDE {
+			return this;
+		}
+
+		virtual CefRefPtr<CefRenderProcessHandler> GetRenderProcessHandler() OVERRIDE {
+			return this;
+		}
+>>>>>>> Web GUI now uses Chromium Embedded Framework.
 	private:
-		WebCore* web_core;
 		unsigned int windowWidth, windowHeight; // The width of the overall window for converting mouse coordinate normals.
+
+		IMPLEMENT_REFCOUNTING(WebGUISystem);
 	};
 }

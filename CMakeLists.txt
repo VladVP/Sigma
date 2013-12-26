@@ -2,7 +2,12 @@ CMAKE_MINIMUM_REQUIRED (VERSION 2.8)
 PROJECT (Sigma)
 
 # Set the include directory
+<<<<<<< HEAD
 INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}/include")
+=======
+include_directories("${CMAKE_SOURCE_DIR}/include")
+include_directories("${CMAKE_SOURCE_DIR}")
+>>>>>>> Web GUI now uses Chromium Embedded Framework.
 
 # Set the cmake search paths
 SET(CMAKE_INCLUDE_PATH ${CMAKE_SOURCE_DIR}/include)
@@ -81,6 +86,7 @@ ENDIF ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
 
 ## Set the libraries
 
+<<<<<<< HEAD
 # If we are on windows add in the local search directories as well.
 IF (WIN32 AND NOT MINGW) # Windows
 	SET(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} ${CMAKE_SOURCE_DIR}/include/libraries)
@@ -122,6 +128,69 @@ IF (APPLE) # Mac OSX
 	SET(CMAKE_OSX_ARCHITECTURES i386)
 	SET(CMAKE_XCODE_ATTRIBUTE_VALID_ARCHS "i386")
 	SET(CMAKE_XCODE_ATTRIBUTE_SUPPORTED_PLATFORMS macosx)
+=======
+# Link aganst OpenGL and GLEW
+# We can use the find OpenGL package on windows
+find_package(OpenGL REQUIRED)
+if(NOT OPENGL_FOUND)
+	message(FATAL_ERROR "OpenGL not found! Aborting!")
+endif(NOT OPENGL_FOUND)
+
+# Figure out what Operating System to compile against
+if(WIN32 AND NOT MINGW) # Windows
+	set(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} ${CMAKE_SOURCE_DIR}/include/libraries)
+	include_directories("${CMAKE_SOURCE_DIR}/include/libraries")
+	set(CMAKE_LIBRARY_PATH ${CMAKE_SOURCE_DIR}/lib/x86)
+	link_directories("${CMAKE_SOURCE_DIR}/lib/x86")
+
+	SET(GLFW3_LIBRARY glfw3)
+	set(GLEW_LIBRARY glew32s glew32)
+	set(BULLET_LINEARMATH_LIBRARIES LinearMath)
+	set(BULLET_COLLISION_LIBRARIES BulletCollision)
+	set(BULLET_DYNAMICS_LIBRARIES BulletDynamics)
+	SET(SOIL_LIBRARY SOIL)
+endif(WIN32 AND NOT MINGW)
+
+if(MINGW OR UNIX OR ${CMAKE_SYSTEM_NAME} MATCHES "Linux") # *nix compliant
+	if (NOT APPLE) # X11 and GLEW are not needed on OS X.
+		find_package(GLEW REQUIRED)
+		if(NOT GLEW_FOUND)
+			message(FATAL_ERROR "GLEW not found! Aborting!")
+		endif(NOT GLEW_FOUND)
+	endif (NOT APPLE)
+
+	find_package(GLFW3 REQUIRED)
+	if(NOT GLFW3_FOUND)
+		message(FATAL_ERROR "GLFW3 not found! Aborting!")
+	endif(NOT GLFW3_FOUND)
+
+	find_package(Bullet REQUIRED)
+	if(NOT (BULLET_DYNAMICS_FOUND AND BULLET_COLLISION_FOUND AND BULLET_LINEARMATH_FOUND))
+		message(FATAL_ERROR "Bullet Physics was not found. Aborting!")
+	endif(NOT (BULLET_DYNAMICS_FOUND AND BULLET_COLLISION_FOUND AND BULLET_LINEARMATH_FOUND))
+
+	find_package(SOIL REQUIRED)
+	if(NOT ${SOIL_FOUND})
+		message(FATAL_ERROR "SOIL wasn't found!")
+		message(ERROR "Please install SOIL, or if you have it installed, make sure that modules/FindSOIL.cmake looks for it")
+	endif(NOT ${SOIL_FOUND})
+endif(MINGW OR UNIX OR ${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+
+if(UNIX AND NOT APPLE)
+	find_package(GTK2 REQUIRED)
+	include_directories("${GTK2_INCLUDE_DIRS}")
+endif(UNIX AND NOT APPLE)
+
+link_directories("${CMAKE_SOURCE_DIR}/build/bin")
+SET(OSX_CF_LIBRARY "")
+
+if(APPLE) # Mac OSX
+	SET(GLEW_LIBRARY "")
+
+	set(CMAKE_OSX_ARCHITECTURES i386;x86_64)
+	set(CMAKE_XCODE_ATTRIBUTE_VALID_ARCHS "i386 x86_64")
+	set(CMAKE_XCODE_ATTRIBUTE_SUPPORTED_PLATFORMS macosx)
+>>>>>>> Web GUI now uses Chromium Embedded Framework.
 
 	# Need the 10.7 SDK or later.
 	EXECUTE_PROCESS(COMMAND xcodebuild -sdk macosx -version SDKVersion OUTPUT_VARIABLE OSX_SDK_VERSION)
@@ -141,6 +210,7 @@ IF (APPLE) # Mac OSX
 	# Can deploy back to 10.7, the first OS X to support the GL Core.
 	SET(CMAKE_OSX_DEPLOYMENT_TARGET 10.7)
 
+<<<<<<< HEAD
 	# Need Core Foundation and libobjc.
 	SET(OSX_LIBRARIES "-framework CoreFoundation /usr/lib/libobjc.dylib")
 
@@ -151,9 +221,21 @@ IF (APPLE) # Mac OSX
 		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -F/Library/Frameworks")
 	ENDIF (NOT XCODE_VERSION)
 ENDIF (APPLE)
+=======
+	# Need Core Foundation
+	set(OSX_CF_LIBRARY "-framework CoreFoundation")
+endif(APPLE)
+>>>>>>> Web GUI now uses Chromium Embedded Framework.
 
 # add the executable
 ADD_EXECUTABLE(Sigma ${Sigma_SRC} ${Sigma_SRC_COMPONENT_H} ${Sigma_SRC_COMPONENT_CPP} ${Sigma_SRC_SYSTEM_H} ${Sigma_SRC_SYSTEM_CPP} ${Sigma_SRC_CONTROLLERS_H} ${Sigma_SRC_CONTROLLERS_CPP} ${Sigma_SRC_RESOURCES_H})
 
 # Link the executable to all required libraries
+<<<<<<< HEAD
 TARGET_LINK_LIBRARIES(Sigma ${OPENGL_LIBRARIES} ${GLFW3_LIBRARY} ${OGGVORBIS_LIBRARIES} ${OPENAL_LIBRARY} ${X11_LIBRARIES} ${OSX_LIBRARIES} ${GLEW_LIBRARY} ${SOIL_LIBRARY} ${BULLET_LINEARMATH_LIBRARIES} ${BULLET_COLLISION_LIBRARIES} ${BULLET_DYNAMICS_LIBRARIES} ${AWESOMIUM_LIBRARY})
+=======
+target_link_libraries (Sigma ${OPENGL_LIBRARIES} ${GLFW3_LIBRARY} ${OSX_CF_LIBRARY} ${GLEW_LIBRARY} ${SOIL_LIBRARY} ${BULLET_LINEARMATH_LIBRARIES} ${BULLET_COLLISION_LIBRARIES} ${BULLET_DYNAMICS_LIBRARIES} cef_dll_wrapper cef)
+
+# build the Tests subproject
+#ADD_SUBDIRECTORY("${CMAKE_SOURCE_DIR}/tests")
+>>>>>>> Web GUI now uses Chromium Embedded Framework.
