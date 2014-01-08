@@ -45,6 +45,7 @@ Sigma on Linux also requires [GTK+ 2](http://www.gtk.org), due to usage of Chrom
 You'll also need a [package of assets](https://www.dropbox.com/s/8gtm4bj0g9yjo54/assets12-27.zip). Unpack it in the build/bin/ directory.
 
 ## Setting up Chromium Embedded Framework ###
+<<<<<<< HEAD
 Chromium Embedded Framework is not a standard library that is thrown into compiler's directories.
 
 Make sure you use a binary release from [Adobe](http://www.cefbuilds.com). Sigma is developed using the latest stable version.
@@ -52,6 +53,13 @@ Make sure you use a binary release from [Adobe](http://www.cefbuilds.com). Sigma
 1. Unzip the downloaded tarball.
 2. This step depends on your platform. On Windows, build the included `libcef_dll_wrapper.vcxproj` project. On Linux, run `make libcef_dll_wrapper`. On OS X, use the `cefclient.xcodeproj` Xcode project.
 3. Copy the `libcef_dll_wrapper` library and directory of the same name, if any, and the contents of Debug/ and Resources/ directories into Sigma's build/bin/.
+=======
+Make sure you use a binary release from [Adobe](http://www.cefbuilds.com). **Use the latest version that is NOT marked as dev (trunk).**
+
+1. Unzip the downloaded tarball.
+2. This step depends on your platform. On Windows, build the included `libcef_dll_wrapper.vcxproj` project. On Linux, run `make libcef_dll_wrapper BUILDTYPE=Release`. On OS X, use the `cefclient.xcodeproj` Xcode project. **Make sure to use the Release build mode.**
+3. Copy `out/Release/obj.target/libcef_dll_wrapper.a` (or .lib), `out/Release/obj.target/libcef_dll_wrapper` directory, if any, and the contents of `Release/` and `Resources/` directories into Sigma's build/bin/.
+>>>>>>> Fixed some obnoxious errors.
 4. Copy the contents of include/ directory into Sigma's include/.
 
 ## Building ##
