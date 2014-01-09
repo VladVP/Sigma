@@ -24,15 +24,24 @@ class Property;
 namespace Sigma {
 	class WebGUISystem : public IFactory, public ISystem<WebGUIView>, public CefApp, public CefBrowserProcessHandler, public CefRenderProcessHandler {
 	public:
+<<<<<<< HEAD
 		WebGUISystem() { }
 		~WebGUISystem() { };
+=======
+		DLL_EXPORT WebGUISystem();
+		DLL_EXPORT ~WebGUISystem();
+>>>>>>> Added symbols to be Exported, moved ctors to cpp files to avoid exporting getFactoryFunctions
 		/**
 		 * \brief Initializes the Chromium Embedded Framework.
 		 *
 		 * \param[in] CefMainArgs mainArgs Command line arguments, passed from main()
 		 * \return bool Returns false on startup failure.
 		 */
+<<<<<<< HEAD
 		bool Start(CefMainArgs& mainArgs);
+=======
+		DLL_EXPORT bool Start();
+>>>>>>> Added symbols to be Exported, moved ctors to cpp files to avoid exporting getFactoryFunctions
 
 		void SetWindowSize(unsigned int width, unsigned int height) {
 			this->windowWidth = width;
@@ -46,10 +55,11 @@ namespace Sigma {
 		 * \param[in] const float delta The change in time since the last update
 		 * \return bool Returns true if we had an update interval passed.
 		 */
-		bool Update(const double delta);
+		DLL_EXPORT bool Update(const double delta);
 
 		std::map<std::string,FactoryFunction> getFactoryFunctions();
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 		IComponent* createWebGUIView(const id_t entityID, const std::vector<Property> &properties);
 =======
@@ -64,6 +74,9 @@ namespace Sigma {
 			return this;
 		}
 >>>>>>> Web GUI now uses Chromium Embedded Framework.
+=======
+		DLL_EXPORT IComponent* createWebGUIView(const id_t entityID, const std::vector<Property> &properties);
+>>>>>>> Added symbols to be Exported, moved ctors to cpp files to avoid exporting getFactoryFunctions
 	private:
 		unsigned int windowWidth, windowHeight; // The width of the overall window for converting mouse coordinate normals.
 
