@@ -114,7 +114,11 @@ FIND_PACKAGE(OggVorbis REQUIRED)
 FIND_PACKAGE(OpenAL REQUIRED)
 FIND_PACKAGE(Bullet REQUIRED)
 FIND_PACKAGE(SOIL REQUIRED)
+<<<<<<< HEAD
 FIND_PACKAGE(Awesomium REQUIRED)
+=======
+FIND_PACKAGE(GLM REQUIRED)
+>>>>>>> Add FindGLM module and added the respecting FIND_PACKAGE to CMakeLists
 
 # Give these some dummy values and if the platform is LINUX or OSX they will be set accordingly.
 SET(X11_LIBRARIES "")
