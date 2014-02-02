@@ -18,6 +18,7 @@
 #endif
 
 int main(int argCount, char **argValues) {
+<<<<<<< HEAD:src/tests/main.cpp
 	Sigma::WebGUISystem webguisys;
 
 	CefRefPtr<Sigma::WebGUISystem> app(&webguisys);
@@ -32,6 +33,28 @@ int main(int argCount, char **argValues) {
 	if (exitCode >= 0) {
 		return exitCode;
 	}
+=======
+	Log::Print::Init(); // Initiatin the Logger must the first thing
+
+	Sigma::WebGUISystem webguisys;
+
+#ifndef NO_CEF
+	CefRefPtr<Sigma::WebGUISystem> app(&webguisys);
+#ifdef _WIN32
+	CefMainArgs mainArgs(GetModuleHandle(NULL));
+#else
+	CefMainArgs mainArgs(argCount, argValues);
+#endif
+#ifdef CEFDEV
+	int exitCode = CefExecuteProcess(mainArgs, app.get(), nullptr);
+#else
+	int exitCode = CefExecuteProcess(mainArgs, app.get());
+#endif
+	if (exitCode >= 0) {
+		return exitCode;
+	}
+#endif
+>>>>>>> b27385e1b5d96c34ecc6ea1671f1fe756d99e0f7:src/tests/main.cpp
 
 	Sigma::OS glfwos;
 	Sigma::OpenGLSystem glsys;
@@ -42,10 +65,12 @@ int main(int argCount, char **argValues) {
 	factory.register_Factory(glsys);
 	factory.register_Factory(alsys);
 	factory.register_Factory(bphys);
+#ifndef NO_CEF
 	factory.register_Factory(webguisys);
+#endif
 
-	if (!glfwos.InitializeWindow(1024, 768, "Sigma GLFW Test Window")) {
-		std::cerr << "Failed creating the window or context." << std::endl;
+	if (!glfwos.InitializeWindow(1024, 768, "Sigma test")) {
+		LOG_ERROR << "Failed creating the window or context.";
 		return -1;
 	}
 
@@ -53,17 +78,17 @@ int main(int argCount, char **argValues) {
 	// Start the openGL system //
 	/////////////////////////////
 
-	std::cout << "Initializing OpenGL system." << std::endl;
+	LOG << "Initializing OpenGL system.";
 	const int* version = glsys.Start();
 
 	glsys.SetViewportSize(glfwos.GetWindowWidth(), glfwos.GetWindowHeight());
 
 	if (version[0] == -1) {
-		std::cerr << "Error starting OpenGL!" << std::endl;
+		LOG_ERROR << "Error starting OpenGL!";
 		return -1;
 	}
 	else {
-		std::cout << "OpenGL version: " << version[0] << "." << version[1] << std::endl;
+		LOG << "OpenGL version: " << version[0] << "." << version[1];
 	}
 
 	//////////////////////////////
@@ -87,21 +112,27 @@ int main(int argCount, char **argValues) {
 	///////////////
 	// Setup GUI //
 	///////////////
+<<<<<<< HEAD:src/tests/main.cpp
 
 	webguisys.Start();
 =======
 	webguisys.Start(mainArgs);
 >>>>>>> Web GUI now uses Chromium Embedded Framework.
+=======
+#ifndef NO_CEF
+	webguisys.Start(mainArgs);
+>>>>>>> b27385e1b5d96c34ecc6ea1671f1fe756d99e0f7:src/tests/main.cpp
 	webguisys.SetWindowSize(glfwos.GetWindowWidth(), glfwos.GetWindowHeight());
+#endif
 
 	/////////////////
 	// Setup Sound //
 	/////////////////
 
-	std::cout << "Initializing OpenAL system." << std::endl;
+	LOG << "Initializing OpenAL system.";
 	alsys.Start();
 	alsys.test(); // try sound
-	
+
 	////////////////
 	// Load scene //
 	////////////////
@@ -109,12 +140,13 @@ int main(int argCount, char **argValues) {
 	// Parse the scene file to retrieve entities
 	Sigma::parser::SCParser parser;
 
-	std::cout << "Parsing test.sc scene file." << std::endl;
+	LOG << "Parsing test.sc scene file.";
 	if (!parser.Parse("test.sc")) {
-		assert(0 && "Failed to load entities from file.");
+		LOG_ERROR << "Failed to load entities from file.";
+		exit (-1);
 	}
 
-	std::cout << "Generating Entities." << std::endl;
+	LOG << "Generating Entities.";
 
 	// Create each entity's components
 	for (unsigned int i = 0; i < parser.EntityCount(); ++i) {
@@ -172,25 +204,40 @@ int main(int argCount, char **argValues) {
 	glfwos.RegisterKeyboardEventHandler(&theCamera);
 	glfwos.RegisterMouseEventHandler(&theCamera);
 	theCamera.os = &glfwos;
-	
+
 	// Sync bullet physics object with gl camera
 
 	///////////////////
 	// Configure GUI //
 	///////////////////
-
+#ifndef NO_CEF
 	Sigma::event::handler::GUIController guicon;
 	guicon.SetGUI(webguisys.getComponent(100, Sigma::WebGUIView::getStaticComponentTypeName()));
 	glfwos.RegisterKeyboardEventHandler(&guicon);
 	glfwos.RegisterMouseEventHandler(&guicon);
-	
+#endif
+
 	// Call now to clear the delta after startup.
 	glfwos.GetDeltaTime();
+
+	Sigma::ALSound *als;
+	bool soundflag = false, soundrunning = false;
 	{
-		Sigma::ALSound *als = (Sigma::ALSound *)alsys.getComponent(200, Sigma::ALSound::getStaticComponentTypeName());
+		als = (Sigma::ALSound *)alsys.getComponent(200, Sigma::ALSound::getStaticComponentTypeName());
 		if(als) {
 			als->Play(Sigma::PLAYBACK_LOOP);
 		}
+		als = (Sigma::ALSound *)alsys.getComponent(201, Sigma::ALSound::getStaticComponentTypeName());
+		if(als) {
+			als->Play(Sigma::PLAYBACK_LOOP);
+		}
+		als = (Sigma::ALSound *)alsys.getComponent(202, Sigma::ALSound::getStaticComponentTypeName());
+		if(als) {
+			als->Play(Sigma::PLAYBACK_LOOP);
+		}
+
+		// This one must be last
+		als = (Sigma::ALSound *)alsys.getComponent(203, Sigma::ALSound::getStaticComponentTypeName());
 	}
 
 	enum FlashlightState {
@@ -202,35 +249,62 @@ int main(int argCount, char **argValues) {
 
 	FlashlightState fs = FL_OFF;
 
+	LOG << "Main loop begins ";
 	while (!glfwos.Closing()) {
 		// Get time in ms, store it in seconds too
 		double deltaSec = glfwos.GetDeltaTime();
 
-		// Process input
-		if(glfwos.CheckKeyState(Sigma::event::KS_DOWN, GLFW_KEY_F)) {
-			if(fs==FL_OFF) {
-				fs=FL_TURNING_ON;
-			} else if (fs==FL_ON) {
-				fs=FL_TURNING_OFF;
+		if(!(glfwos.HasKeyboardFocusLock())) {
+			// Process input
+			if(glfwos.CheckKeyState(Sigma::event::KS_DOWN, GLFW_KEY_F)) {
+				if(fs==FL_OFF) {
+					fs=FL_TURNING_ON;
+				} else if (fs==FL_ON) {
+					fs=FL_TURNING_OFF;
+				}
+			}
+
+			if(glfwos.CheckKeyState(Sigma::event::KS_UP, GLFW_KEY_F)) {
+				if(fs==FL_TURNING_ON) {
+					// Enable flashlight
+					Sigma::SpotLight *spotlight = static_cast<Sigma::SpotLight *>(glsys.getComponent(151, Sigma::SpotLight::getStaticComponentTypeName()));
+					spotlight->enabled = true;
+					// Rotate flashlight up
+					// Enable spotlight
+					fs=FL_ON;
+				} else if (fs==FL_TURNING_OFF) {
+					// Disable spotlight
+					Sigma::SpotLight *spotlight = static_cast<Sigma::SpotLight *>(glsys.getComponent(151, Sigma::SpotLight::getStaticComponentTypeName()));
+					spotlight->enabled = false;
+					// Rotate flashlight down
+					// Disable flashlight
+					fs=FL_OFF;
+				}
 			}
 		}
 
-		if(glfwos.CheckKeyState(Sigma::event::KS_UP, GLFW_KEY_F)) {
-			if(fs==FL_TURNING_ON) {
-				// Enable flashlight
-				Sigma::SpotLight *spotlight = static_cast<Sigma::SpotLight *>(glsys.getComponent(151, Sigma::SpotLight::getStaticComponentTypeName()));
-				spotlight->enabled = true;
-				// Rotate flashlight up
-				// Enable spotlight
-				fs=FL_ON;
-			} else if (fs==FL_TURNING_OFF) {
-				// Disable spotlight
-				Sigma::SpotLight *spotlight = static_cast<Sigma::SpotLight *>(glsys.getComponent(151, Sigma::SpotLight::getStaticComponentTypeName()));
-				spotlight->enabled = false;
-				// Rotate flashlight down
-				// Disable flashlight
-				fs=FL_OFF;
+		if(glfwos.CheckKeyState(Sigma::event::KS_DOWN, GLFW_KEY_W) ||
+				glfwos.CheckKeyState(Sigma::event::KS_DOWN, GLFW_KEY_A) ||
+				glfwos.CheckKeyState(Sigma::event::KS_DOWN, GLFW_KEY_D) ||
+				glfwos.CheckKeyState(Sigma::event::KS_DOWN, GLFW_KEY_S)
+			) {
+			soundflag = true;
+		}
+		else if(glfwos.CheckKeyState(Sigma::event::KS_UP, GLFW_KEY_W) ||
+				glfwos.CheckKeyState(Sigma::event::KS_UP, GLFW_KEY_A) ||
+				glfwos.CheckKeyState(Sigma::event::KS_UP, GLFW_KEY_D) ||
+				glfwos.CheckKeyState(Sigma::event::KS_UP, GLFW_KEY_S)
+				) {
+			soundflag = false;
+		}
+
+		if(als && (soundflag != soundrunning)) {
+			if(soundflag && !(glfwos.HasKeyboardFocusLock())) {
+				als->Play(Sigma::PLAYBACK_LOOP);
+			} else {
+				als->Stop();
 			}
+			soundrunning = soundflag;
 		}
 
 		///////////////////////
@@ -241,16 +315,28 @@ int main(int argCount, char **argValues) {
 		bphys.Update(deltaSec);
 		webguisys.Update(deltaSec);
 
-		alsys.Update();
 
 		// Update the renderer and present
 		if (glsys.Update(deltaSec)) {
 			glfwos.SwapBuffers();
+
+			alsys.Update();
+			alsys.UpdateTransform(*glsys.GetView()->Transform());
 		}
 
 		glfwos.OSMessageLoop();
 	}
 
+<<<<<<< HEAD:src/tests/main.cpp
 	CefShutdown();
+=======
+	// do a proper clean up
+	alsys.Shutdown();
+#ifndef NO_CEF
+	CefShutdown();
+#endif
+	glfwos.Terminate();
+
+>>>>>>> b27385e1b5d96c34ecc6ea1671f1fe756d99e0f7:src/tests/main.cpp
 	return 0;
 }

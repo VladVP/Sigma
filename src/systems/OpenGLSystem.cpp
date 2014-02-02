@@ -10,6 +10,8 @@
 #include "components/PointLight.h"
 #include "components/SpotLight.h"
 
+#include "Sigma.h"
+
 #ifdef __APPLE__
 // Do not include <OpenGL/glu.h> because that will include gl.h which will mask all sorts of errors involving the use of deprecated GL APIs until runtime.
 // gluErrorString (and all of glu) is deprecated anyway (TODO).
@@ -346,14 +348,33 @@ namespace Sigma{
 				continue;
 			}
 			else if (p->GetName() == "meshFile") {
-				std::cerr << "Loading mesh: " << p->Get<std::string>() << std::endl;
 				mesh->LoadMesh(p->Get<std::string>());
 			}
 			else if (p->GetName() == "shader") {
 				shaderfile = p->Get<std::string>();
 			}
+			else if (p->GetName() == "textureReplace") {
+				mesh->texReplace = p->Get<std::string>();
+			}
+			else if (p->GetName() == "replaceWith") {
+				mesh->texReplaceWith = p->Get<std::string>();
+			}
 			else if (p->GetName() == "id") {
 				componentID = p->Get<int>();
+			}
+			else if (p->GetName() == "parent") {
+				GLTransform *th, *pr;
+				int index = p->Get<int>();
+				th = mesh->Transform();
+				if(index == -1) {
+					pr = this->GetView()->Transform();
+				}
+				else {
+					pr = this->GetTransformFor(index);
+				}
+				if(th && pr) {
+					th->SetParentTransform(pr);
+				}
 			}
 			else if (p->GetName() == "cullface") {
 				cull_face = p->Get<std::string>();
@@ -531,6 +552,14 @@ namespace Sigma{
 				light->outerAngle = p->Get<float>();
 				light->cosOuterAngle = glm::cos(light->outerAngle);
 			}
+			else if (p->GetName() == "parent") {
+				GLTransform *th, *pr;
+				th = &light->transform;
+				pr = this->GetTransformFor(p->Get<int>());
+				if(th && pr) {
+					th->SetParentTransform(pr);
+				}
+			}
 		}
 
 		light->transform.TranslateTo(x, y, z);
@@ -602,10 +631,11 @@ namespace Sigma{
 
 		switch(status) {
 		case GL_FRAMEBUFFER_COMPLETE:
-			std::cout << "Successfully created render target.";
+			LOG << "Successfully created render target.";
 			break;
 		default:
-			assert(0 && "Error: Framebuffer format is not compatible.");
+			LOG_ERROR << "Error: Framebuffer format is not compatible.";
+			assert (0 && "Error: Framebuffer format is not compatible.");
 		}
 
 		// Unbind objects
@@ -1054,7 +1084,7 @@ int printOglError(const std::string &file, int line) {
 
 	glErr = glGetError();
 	if (glErr != GL_NO_ERROR) {
-		std::cerr << "glError in file " << file << " @ line " << line << ": " << gluErrorString(glErr) << std::endl;
+		LOG_ERROR << "glError in file " << file << " @ line " << line << ": " << gluErrorString(glErr);
 		retCode = 1;
 	}
 	return retCode;

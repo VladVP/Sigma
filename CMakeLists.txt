@@ -3,14 +3,26 @@ PROJECT (Sigma)
 
 # Set the include directory
 <<<<<<< HEAD
+<<<<<<< HEAD
 INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}/include")
 =======
 include_directories("${CMAKE_SOURCE_DIR}/include")
 include_directories("${CMAKE_SOURCE_DIR}")
 >>>>>>> Web GUI now uses Chromium Embedded Framework.
+=======
+INCLUDE_DIRECTORIES(
+	${CMAKE_SOURCE_DIR}
+	${CMAKE_SOURCE_DIR}/include
+	${CMAKE_SOURCE_DIR}/cef
+	${CMAKE_SOURCE_DIR}/cef/include
+	)
+>>>>>>> b27385e1b5d96c34ecc6ea1671f1fe756d99e0f7
 
 # Set the cmake search paths
-SET(CMAKE_INCLUDE_PATH ${CMAKE_SOURCE_DIR}/include)
+SET(CMAKE_INCLUDE_PATH
+	${CMAKE_SOURCE_DIR}/include
+	${CMAKE_SOURCE_DIR}/cef
+	)
 
 # change output directory of executable so that relative paths in the code are correct
 SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/build/bin)
@@ -99,13 +111,15 @@ IF (WIN32 AND NOT MINGW) # Windows
 	SET(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} ${CMAKE_SOURCE_DIR}/include/libraries)
 	INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}/include/libraries")
 	IF (CMAKE_CL_64)
-	LINK_DIRECTORIES("${CMAKE_SOURCE_DIR}/lib/x64/debug" "${CMAKE_SOURCE_DIR}/lib/x64/release")
-	SET(CMAKE_LIBRARY_PATH ${CMAKE_SOURCE_DIR}/lib/x64/debug ${CMAKE_SOURCE_DIR}/lib/x64/release)
+		LINK_DIRECTORIES("${CMAKE_SOURCE_DIR}/lib/x64/debug" "${CMAKE_SOURCE_DIR}/lib/x64/release")
+		SET(CMAKE_LIBRARY_PATH ${CMAKE_SOURCE_DIR}/lib/x64/debug ${CMAKE_SOURCE_DIR}/lib/x64/release)
 	ELSE (CMAKE_CL_64)
-	LINK_DIRECTORIES("${CMAKE_SOURCE_DIR}/lib/x86/debug" "${CMAKE_SOURCE_DIR}/lib/x86/release")
-	SET(CMAKE_LIBRARY_PATH ${CMAKE_SOURCE_DIR}/lib/x86/debug ${CMAKE_SOURCE_DIR}/lib/x86/release)
+		LINK_DIRECTORIES("${CMAKE_SOURCE_DIR}/lib/x86/debug" "${CMAKE_SOURCE_DIR}/lib/x86/release")
+		SET(CMAKE_LIBRARY_PATH ${CMAKE_SOURCE_DIR}/lib/x86/debug ${CMAKE_SOURCE_DIR}/lib/x86/release)
 	ENDIF (CMAKE_CL_64)
 ENDIF (WIN32 AND NOT MINGW)
+
+set(BUILD_LINK_CEF FALSE CACHE BOOL "Build with Chromium Embedded Framework (CEF)")
 
 # Find all the libraries except GLEW and platform specific.
 FIND_PACKAGE(OpenGL REQUIRED)
@@ -115,10 +129,19 @@ FIND_PACKAGE(OpenAL REQUIRED)
 FIND_PACKAGE(Bullet REQUIRED)
 FIND_PACKAGE(SOIL REQUIRED)
 <<<<<<< HEAD
+<<<<<<< HEAD
 FIND_PACKAGE(Awesomium REQUIRED)
 =======
 FIND_PACKAGE(GLM REQUIRED)
 >>>>>>> Add FindGLM module and added the respecting FIND_PACKAGE to CMakeLists
+=======
+FIND_PACKAGE(GLM REQUIRED)
+if(BUILD_LINK_CEF)
+	FIND_PACKAGE(CEF REQUIRED)
+else(BUILD_LINK_CEF)
+	add_definitions(-DNO_CEF)
+endif(BUILD_LINK_CEF)
+>>>>>>> b27385e1b5d96c34ecc6ea1671f1fe756d99e0f7
 
 # Give these some dummy values and if the platform is LINUX or OSX they will be set accordingly.
 SET(X11_LIBRARIES "")
@@ -135,6 +158,7 @@ IF (NOT APPLE) # X11 and GLEW are not needed on OSX.
 ENDIF (NOT APPLE)
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 IF (UNIX AND NOT APPLE)
 	FIND_PACKAGE(GTK2 REQUIRED)
@@ -142,12 +166,21 @@ IF (UNIX AND NOT APPLE)
 ENDIF (UNIX AND NOT APPLE)
 
 >>>>>>> Changed link dir for CEF.
+=======
+IF (UNIX AND NOT APPLE)
+	if(BUILD_LINK_CEF)
+		FIND_PACKAGE(GTK2 REQUIRED)
+		INCLUDE_DIRECTORIES("${GTK2_INCLUDE_DIRS}")
+	endif(BUILD_LINK_CEF)
+
+ENDIF (UNIX AND NOT APPLE)
+
+>>>>>>> b27385e1b5d96c34ecc6ea1671f1fe756d99e0f7
 IF (APPLE) # Mac OSX
 	SET(GLEW_LIBRARY "") # Set a dummy value for GLEW.
 
-	# Awesomium does not support 64-bit.
-	SET(CMAKE_OSX_ARCHITECTURES i386)
-	SET(CMAKE_XCODE_ATTRIBUTE_VALID_ARCHS "i386")
+	SET(CMAKE_OSX_ARCHITECTURES i386;x86_64)
+	SET(CMAKE_XCODE_ATTRIBUTE_VALID_ARCHS "i386 x86_64")
 	SET(CMAKE_XCODE_ATTRIBUTE_SUPPORTED_PLATFORMS macosx)
 =======
 # Link aganst OpenGL and GLEW
@@ -234,13 +267,6 @@ if(APPLE) # Mac OSX
 <<<<<<< HEAD
 	# Need Core Foundation and libobjc.
 	SET(OSX_LIBRARIES "-framework CoreFoundation /usr/lib/libobjc.dylib")
-
-	IF (NOT XCODE_VERSION)
-		# Yuck. The Makefile generator is not emitting a -F/Path/To/Awesomium flag.
-		# As a workaround, add the necessary flags ourself assuming the Awesomium was installed in its default location.
-		SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -F/Library/Frameworks")
-		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -F/Library/Frameworks")
-	ENDIF (NOT XCODE_VERSION)
 ENDIF (APPLE)
 =======
 	# Need Core Foundation
@@ -252,6 +278,7 @@ endif(APPLE)
 set(BUILD_EXE_Sigma TRUE CACHE BOOL "Build the Sigma test executable")
 set(BUILD_STATIC_Sigma FALSE CACHE BOOL "Build Sigma as a static library")
 set(BUILD_SHARED_Sigma TRUE CACHE BOOL "Build Sigma as a shared library")
+<<<<<<< HEAD
 
 # define all required external libraries
 set(Sigma_ALL_LIBS
@@ -376,3 +403,123 @@ target_link_libraries (Sigma ${OPENGL_LIBRARIES} ${GLFW3_LIBRARY} ${OSX_CF_LIBRA
 >>>>>>> Web GUI now uses Chromium Embedded Framework.
 =======
 >>>>>>> Adjusted CMakeLists and added options to build as a library
+=======
+
+# define all required external libraries
+set(Sigma_ALL_LIBS
+	${OPENGL_LIBRARIES}
+	${GLFW3_LIBRARY}
+	${OGGVORBIS_LIBRARIES}
+	${OPENAL_LIBRARY}
+	${X11_LIBRARIES}
+	${OSX_LIBRARIES}
+	${GLEW_LIBRARY}
+	${SOIL_LIBRARY}
+	${BULLET_LINEARMATH_LIBRARIES}
+	${BULLET_COLLISION_LIBRARIES}
+	${BULLET_DYNAMICS_LIBRARIES}
+	${CEF_LIBRARIES}
+	)
+
+# all source common to the library and test exe
+set(Sigma_ALL_SOURCE
+	${Sigma_SRC}
+	${Sigma_SRC_COMPONENT_CPP}
+	${Sigma_SRC_SYSTEM_CPP}
+	${Sigma_SRC_CONTROLLERS_CPP}
+	)
+
+# all source common to the library and test exe
+set(Sigma_ALL_INCLUDES
+	${Sigma_INCLUDES}
+	${Sigma_SRC_COMPONENT_H}
+	${Sigma_SRC_SYSTEM_H}
+	${Sigma_SRC_CONTROLLERS_H}
+	${Sigma_SRC_RESOURCES_H}
+	)
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+
+LINK_DIRECTORIES("${CMAKE_SOURCE_DIR}/cef")
+# For CEF these may or may not work depending on the platform/build config, including anyway
+LINK_DIRECTORIES("${CMAKE_BINARY_DIR}/bin")
+LINK_DIRECTORIES("${EXECUTABLE_OUTPUT_PATH}")
+
+if(BUILD_STATIC_Sigma)
+	add_library(libSigmas STATIC
+		${Sigma_ALL_SOURCE}
+		${Sigma_ALL_INCLUDES}
+		)
+	# Link the Sigma lib to all required external libraries
+	TARGET_LINK_LIBRARIES(libSigmas ${Sigma_ALL_LIBS})
+	if(WIN32)
+		set_target_properties(libSigmas PROPERTIES
+			OUTPUT_NAME Sigma_static
+			)
+	else(WIN32)
+		set_target_properties(libSigmas PROPERTIES
+			OUTPUT_NAME Sigma
+			)
+	endif(WIN32)
+endif(BUILD_STATIC_Sigma)
+
+if(BUILD_SHARED_Sigma)
+	add_library(libSigma SHARED
+		${Sigma_ALL_SOURCE}
+		${Sigma_ALL_INCLUDES}
+		)
+	# Link the Sigma lib to all required external libraries
+	TARGET_LINK_LIBRARIES(libSigma ${Sigma_ALL_LIBS})
+	set_target_properties(libSigma PROPERTIES
+		OUTPUT_NAME Sigma
+		)
+endif(BUILD_SHARED_Sigma)
+
+if(BUILD_EXE_Sigma)
+	# add the test executable, include the test app source containing main()
+
+	# if we are building a library of Sigma just link that and the includes
+	FOREACH(TEST_CPP ${Sigma_SRC_TESTS_CPP})
+		GET_FILENAME_COMPONENT(TEST_NAME ${TEST_CPP} NAME_WE)
+		if(TEST_NAME STREQUAL "main")
+			SET(TEST_NAME "Sigma")
+		endif(TEST_NAME STREQUAL "main")
+
+		MESSAGE(STATUS "Processing: ${TEST_NAME}")
+
+		if(BUILD_STATIC_Sigma)
+			ADD_EXECUTABLE(${TEST_NAME}
+				${Sigma_ALL_INCLUDES}
+				${TEST_CPP}
+				)
+			TARGET_LINK_LIBRARIES(${TEST_NAME} libSigmas)
+
+		elseif(BUILD_SHARED_Sigma)
+			ADD_EXECUTABLE(${TEST_NAME}
+				${Sigma_ALL_INCLUDES}
+				${TEST_CPP}
+				)
+			TARGET_LINK_LIBRARIES(${TEST_NAME} libSigma)
+
+		else(BUILD_STATIC_Sigma)
+			# if just building an exe use all the source and libraries
+			ADD_EXECUTABLE(${TEST_NAME}
+				${Sigma_ALL_SOURCE}
+				${Sigma_ALL_INCLUDES}
+				${TEST_CPP}
+				)
+			# Link the executable to all required libraries
+			TARGET_LINK_LIBRARIES(${TEST_NAME} ${Sigma_ALL_LIBS})
+		endif(BUILD_STATIC_Sigma)
+
+	ENDFOREACH(TEST_CPP)
+endif(BUILD_EXE_Sigma)
+
+# CEF has some files that need to be copied to ${CMAKE_BINARY_DIR}/bin
+ADD_CUSTOM_COMMAND(
+    TARGET Sigma POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${PROJECT_SOURCE_DIR}/cef/bin $<TARGET_FILE_DIR:Sigma>)
+
+>>>>>>> b27385e1b5d96c34ecc6ea1671f1fe756d99e0f7

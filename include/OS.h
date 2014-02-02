@@ -29,6 +29,11 @@ namespace Sigma {
 		 * \return bool If creation was successful or not.
 		 */
 		DLL_EXPORT bool InitializeWindow(const int width, const int height, const std::string title, const unsigned int glMajor = 3, const unsigned int glMinor = 2);
+<<<<<<< HEAD
+=======
+
+		DLL_EXPORT void Terminate();
+>>>>>>> b27385e1b5d96c34ecc6ea1671f1fe756d99e0f7
 
 		/**
 		 * \brief Checks if the window is closing.
@@ -125,6 +130,11 @@ namespace Sigma {
 
 		DLL_EXPORT void RegisterKeyboardEventHandler(event::IKeyboardEventHandler* handler);
 		DLL_EXPORT void RegisterMouseEventHandler(event::IMouseEventHandler* handler);
+<<<<<<< HEAD
+=======
+
+		DLL_EXPORT bool HasKeyboardFocusLock();
+>>>>>>> b27385e1b5d96c34ecc6ea1671f1fe756d99e0f7
 
 		DLL_EXPORT void ToggleMouseLock();
 		

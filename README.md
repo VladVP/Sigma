@@ -28,12 +28,39 @@ Sigma requires the following dependencies:
 * [SOIL](http://www.lonesock.net/soil.html);
 * [Bullet](http://www.bulletphysics.org);
 <<<<<<< HEAD
+<<<<<<< HEAD
 * [Awesomium](http://www.awesomium.com);
+=======
+* [Chromium Embedded Framework](http://code.google.com/p/chromiumembedded) 3;
+>>>>>>> b27385e1b5d96c34ecc6ea1671f1fe756d99e0f7
 * An OpenAL API implementation;
 * [libogg](https://www.xiph.org/ogg/);
 * [libvorbis](https://www.xiph.org/ogg/);
 
+Sigma on Linux also requires [GTK+ 2](http://www.gtk.org), due to usage of Chromium Embedded Framework.
+When building these libraries from source, always build them as shared objects (`.so`). In cmake-builds, this can be done using `cmake -DBUILD_SHARED_LIBS=ON`.
+
 You'll also need a [package of assets](http://wiki.trillek.org/wiki/Assets).  Unpack it in the build/bin/ directory.
+
+## Setting up Chromium Embedded Framework ###
+Make sure you use a binary release from [Adobe](http://www.cefbuilds.com). **Use the latest version that is NOT marked as dev (trunk).**
+
+1. Unzip the downloaded tarball.
+2. This step depends on your platform. **Make sure to use the Release build mode.**
+    * __Windows__ build the included `libcef_dll_wrapper.vcxproj` project
+    * __Linux__ run `make libcef_dll_wrapper BUILDTYPE=Release`
+    * __OS X__ use the `cefclient.xcodeproj` Xcode project.
+3. Make `cef/` and `cef/bin/` directories in `Sigma/`
+4. Copy the `out/Release/obj.target/libcef_dll_wrapper` directory, if any, and the contents of `Resources/` directories into `Sigma/cef/bin/`
+5. Copy the contents of include/ directory into Sigma's include/.
+6. Copy `out/Release/obj.target/libcef_dll_wrapper.a` (or .lib) to `Sigma/cef/`
+7. This step also depends on your platform.
+    * __Windows__ copy all the .dll files in `Release/` to `Sigma/cef/bin`, then copy the .lib file into `Sigma/cef/`
+    * __Linux__ or __OS X__ copy the entire contents of `Release/` into `Sigma/cef/bin/`
+8. On Linux and OSX, make a symlink pointing to libcef.so (or .dylib) in the `cef/` directory.
+9. Make a symlink pointing to `Sigma/cef/bin/libcef_dll_wrapper` in the `cef/` directory. `libcef_dll_wrapper` and `libcef_dll_wrapper.a` must appear in the same place, otherwise you will get a "Malformed Archive" error when linking.
+
+- If you get "Multiply defined symbols" errors building Sigma on Windows with Visual Studio, then make these changes in the libcef_dll_wrapper properties: C/C++ / Preprocessor, edit the definitions to set `_HAS_EXCEPTIONS=1` instead of 0; under C/C++ / Code generation, select the /MDd or /MD runtime library; rebuild and copy the libcef_dll_wrapper.lib to `cef/` directory.
 
 ## Building ##
 
@@ -80,10 +107,14 @@ Use CMake to create makefiles or projects. The resulting executable will be save
 If you want to compile Sigma on OS X, your system must be running OS X 10.7 or later.  You will need to have installed Xcode and, unless your system is running 10.9, the Command Line Tools.  Both can be downloaded from the [Apple Developer Website](https://developer.apple.com/downloads).  
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 Before you can build Sigma, you'll first need to install the dependencies separately.  Using a package manager, such as [MacPorts](http://macports.org), is recommended.  Sigma can only be built as a 32-bit executable under OS X.  All dependencies, except cmake, that you install must include a 32-bit slice.
 =======
 Before you can build Sigma, you'll first need to install the dependencies separately.  Using a package manager, such as [MacPorts](http://macports.org), is recommended.
 >>>>>>> Web GUI now uses Chromium Embedded Framework.
+=======
+Before you can build Sigma, you'll first need to install the dependencies separately.  Using a package manager, such as [MacPorts](http://macports.org), is recommended.
+>>>>>>> b27385e1b5d96c34ecc6ea1671f1fe756d99e0f7
 
 If MacPorts is present, you can use the following commands to install CMake, GLM, GLFW, libogg and libvorbis:
 
